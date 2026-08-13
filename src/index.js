@@ -18,7 +18,7 @@ const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
 
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000')
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000,https://blackphoenix.uz,https://www.blackphoenix.uz')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);

@@ -26,7 +26,7 @@ const productSchema = new mongoose.Schema(
         validator: function (images) {
           return Array.isArray(images) && images.length >= 1 && images.length <= 3;
         },
-        message: 'Product must have between 1 and 3 images'
+        message: 'У товара должно быть от 1 до 3 изображений'
       }
     },
 
@@ -48,5 +48,8 @@ productSchema.index(
   { name: 'text', description: 'text' },
   { weights: { name: 10, description: 1 }, name: 'product_text_search' }
 );
+
+productSchema.index({ createdAt: -1 });
+productSchema.index({ price: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

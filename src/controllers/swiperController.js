@@ -1,4 +1,5 @@
 const Swiper = require('../models/Swiper');
+const errorResponse = require('../utils/errorResponse');
 
 exports.getAllSwipers = async (req, res) => {
     try {
@@ -10,11 +11,7 @@ exports.getAllSwipers = async (req, res) => {
             data: swipers
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: error.message
-        });
+        errorResponse(res, error);
     }
 };
 
@@ -25,7 +22,7 @@ exports.getSwiperById = async (req, res) => {
         if (!swiper) {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
@@ -37,15 +34,11 @@ exports.getSwiperById = async (req, res) => {
         if (error.kind === 'ObjectId') {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: error.message
-        });
+        errorResponse(res, error);
     }
 };
 
@@ -56,7 +49,7 @@ exports.createSwiper = async (req, res) => {
         if (!image || !title || !description) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide all required fields: image, title, description'
+                message: 'Укажите все обязательные поля: image, title, description'
             });
         }
 
@@ -68,7 +61,7 @@ exports.createSwiper = async (req, res) => {
         
         res.status(201).json({
             success: true,
-            message: 'Swiper item created successfully',
+            message: 'Элемент успешно создан',
             data: swiper
         });
     } catch (error) {
@@ -76,16 +69,12 @@ exports.createSwiper = async (req, res) => {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({
                 success: false,
-                message: 'Validation Error',
+                message: 'Ошибка валидации',
                 errors: messages
             });
         }
         
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: error.message
-        });
+        errorResponse(res, error);
     }
 };
 
@@ -110,20 +99,20 @@ exports.updateSwiper = async (req, res) => {
         if (!swiper) {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
         res.status(200).json({
             success: true,
-            message: 'Swiper item updated successfully',
+            message: 'Элемент успешно обновлён',
             data: swiper
         });
     } catch (error) {
         if (error.kind === 'ObjectId') {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
@@ -131,16 +120,12 @@ exports.updateSwiper = async (req, res) => {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({
                 success: false,
-                message: 'Validation Error',
+                message: 'Ошибка валидации',
                 errors: messages
             });
         }
         
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: error.message
-        });
+        errorResponse(res, error);
     }
 };
 
@@ -151,27 +136,23 @@ exports.deleteSwiper = async (req, res) => {
         if (!swiper) {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
         res.status(200).json({
             success: true,
-            message: 'Swiper item deleted successfully',
+            message: 'Элемент успешно удалён',
             data: {}
         });
     } catch (error) {
         if (error.kind === 'ObjectId') {
             return res.status(404).json({
                 success: false,
-                message: 'Swiper item not found'
+                message: 'Элемент не найден'
             });
         }
         
-        res.status(500).json({
-            success: false,
-            message: 'Server Error',
-            error: error.message
-        });
+        errorResponse(res, error);
     }
 };

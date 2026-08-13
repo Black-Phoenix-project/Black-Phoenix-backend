@@ -1,23 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
+const protect = require('../middleware/authMiddleware');
+const { orderLimiter } = require('../middleware/rateLimiter');
+const {
+  createOrderValidator,
+  updateOrderStatusValidator,
+  updatePaymentStatusValidator,
+} = require('../validators/orderValidator');
 
-router.post('/', orderController.createOrder);
+router.post('/', orderLimiter, createOrderValidator, orderController.createOrder);
 
-router.get('/', orderController.getAllOrders);
+router.get('/', protect, orderController.getAllOrders);
 
-router.get('/stats', orderController.getOrderStats);
-
-router.get('/:id', orderController.getOrderById);
+router.get('/stats', protect, orderController.getOrderStats);
 
 router.get('/username/:username', orderController.getOrdersByUsername);
 
-router.put('/:id', orderController.updateOrder);
+router.get('/:id', protect, orderController.getOrderById);
 
-router.patch('/:id/status', orderController.updateOrderStatus);
+router.put('/:id', protect, orderController.updateOrder);
 
-router.patch('/:id/payment', orderController.updatePaymentStatus);
+router.patch('/:id/status', protect, updateOrderStatusValidator, orderController.updateOrderStatus);
 
-router.delete('/:id', orderController.deleteOrder);
+router.patch('/:id/payment', protect, updatePaymentStatusValidator, orderController.updatePaymentStatus);
+
+router.delete('/:id', protect, orderController.deleteOrder);
 
 module.exports = router;

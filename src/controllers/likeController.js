@@ -10,14 +10,14 @@ exports.addLike = async (req, res) => {
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
-        message: 'userId and productId are required',
+        message: 'Укажите userId и productId',
       });
     }
 
     if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid userId or productId',
+        message: 'Неверный userId или productId',
       });
     }
 
@@ -29,7 +29,7 @@ exports.addLike = async (req, res) => {
       return res.status(200).json({
         success: true,
         liked: true,
-        message: 'Already liked',
+        message: 'Уже добавлено в избранное',
         data: existing,
       });
     }
@@ -40,14 +40,13 @@ exports.addLike = async (req, res) => {
     return res.status(201).json({
       success: true,
       liked: true,
-      message: 'Product liked successfully',
+      message: 'Товар добавлен в избранное',
       data: populated,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error adding like',
-      error: error.message,
+      message: 'Ошибка при добавлении в избранное',
     });
   }
 };
@@ -60,14 +59,14 @@ exports.removeLike = async (req, res) => {
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
-        message: 'userId and productId are required',
+        message: 'Укажите userId и productId',
       });
     }
 
     if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid userId or productId',
+        message: 'Неверный userId или productId',
       });
     }
 
@@ -76,13 +75,12 @@ exports.removeLike = async (req, res) => {
     return res.status(200).json({
       success: true,
       liked: false,
-      message: removed ? 'Like removed successfully' : 'Like not found',
+      message: removed ? 'Удалено из избранного' : 'Избранное не найдено',
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error removing like',
-      error: error.message,
+      message: 'Ошибка при удалении из избранного',
     });
   }
 };
@@ -94,14 +92,14 @@ exports.toggleLike = async (req, res) => {
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
-        message: 'userId and productId are required',
+        message: 'Укажите userId и productId',
       });
     }
 
     if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid userId or productId',
+        message: 'Неверный userId или productId',
       });
     }
 
@@ -122,14 +120,13 @@ exports.toggleLike = async (req, res) => {
     return res.status(201).json({
       success: true,
       liked: true,
-      message: 'Product liked successfully',
+      message: 'Товар добавлен в избранное',
       data: populated,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error toggling like',
-      error: error.message,
+      message: 'Ошибка при переключении избранного',
     });
   }
 };
@@ -141,14 +138,14 @@ exports.getUserLikes = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: 'userId is required',
+        message: 'Укажите userId',
       });
     }
 
     if (!isValidObjectId(userId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid userId',
+        message: 'Неверный userId',
       });
     }
 
@@ -165,8 +162,7 @@ exports.getUserLikes = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error fetching likes',
-      error: error.message,
+      message: 'Ошибка при получении избранного',
     });
   }
 };
@@ -178,14 +174,14 @@ exports.checkLike = async (req, res) => {
     if (!userId || !productId) {
       return res.status(400).json({
         success: false,
-        message: 'userId and productId are required',
+        message: 'Укажите userId и productId',
       });
     }
 
     if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid userId or productId',
+        message: 'Неверный userId или productId',
       });
     }
 
@@ -198,8 +194,7 @@ exports.checkLike = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error checking like status',
-      error: error.message,
+      message: 'Ошибка при проверке статуса',
     });
   }
 };
@@ -211,7 +206,7 @@ exports.getProductLikeCount = async (req, res) => {
     if (!isValidObjectId(productId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid productId',
+        message: 'Неверный productId',
       });
     }
 
@@ -225,8 +220,7 @@ exports.getProductLikeCount = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error fetching product like count',
-      error: error.message,
+      message: 'Ошибка при получении количества избранных',
     });
   }
 };

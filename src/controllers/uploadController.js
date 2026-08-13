@@ -1,5 +1,6 @@
 const { Readable } = require('stream');
 const cloudinary = require('../config/cloudinary');
+const errorResponse = require('../utils/errorResponse');
 
 const uploadToCloudinary = (buffer, folder) => {
   return new Promise((resolve, reject) => {
@@ -22,14 +23,14 @@ const uploadToCloudinary = (buffer, folder) => {
 exports.uploadSingle = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Fayl yuklanmadi' });
+      return res.status(400).json({ success: false, message: 'Файл не загружен' });
     }
 
     const result = await uploadToCloudinary(req.file.buffer, 'black-phoenix');
 
     res.json({ success: true, url: result.secure_url });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error, 'upload single');
   }
 };
 
@@ -37,7 +38,7 @@ exports.uploadSingle = async (req, res) => {
 exports.uploadMultiple = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ success: false, message: 'Fayllar yuklanmadi' });
+      return res.status(400).json({ success: false, message: 'Файлы не загружены' });
     }
 
     const results = await Promise.all(
@@ -48,6 +49,6 @@ exports.uploadMultiple = async (req, res) => {
 
     res.json({ success: true, urls });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error, 'upload single');
   }
 };

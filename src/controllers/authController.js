@@ -8,7 +8,7 @@ const register = async (req, res) => {
 
     if (!phoneNumber || !password) {
       return res.status(400).json({
-        message: "phoneNumber and password are required",
+        message: "Укажите телефон и пароль",
       });
     }
 
@@ -16,7 +16,7 @@ const register = async (req, res) => {
     const existingUser = await userModel.findOne({ phoneNumber });
     if (existingUser) {
       return res.status(409).json({
-        message: "User with this phone number already exists",
+        message: "Пользователь с таким номером телефона уже существует",
       });
     }
 
@@ -33,11 +33,11 @@ const register = async (req, res) => {
     const token = jwt.sign(
       { id: newUser._id, phoneNumber: newUser.phoneNumber },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
     );
 
     return res.status(201).json({
-      message: "Registration successful",
+      message: "Регистрация прошла успешно",
       token,
       user: {
         id: newUser._id,
@@ -49,8 +49,7 @@ const register = async (req, res) => {
   } catch (error) {
     console.error("Registration error:", error);
     return res.status(500).json({
-      message: "Server error during registration",
-      error: error.message,
+      message: "Ошибка при регистрации",
     });
   }
 };
@@ -61,7 +60,7 @@ const login = async (req, res) => {
 
     if (!phoneNumber || !password) {
       return res.status(400).json({
-        message: "phoneNumber and password are required",
+        message: "Укажите телефон и пароль",
       });
     }
 
@@ -69,7 +68,7 @@ const login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "Phonenumber not found",
+        message: "Пользователь не найден",
       });
     }
 
@@ -77,18 +76,18 @@ const login = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({
-        message: "Invalid credentials",
+        message: "Неверный пароль",
       });
     }
 
     const token = jwt.sign(
       { id: user._id, phoneNumber: user.phoneNumber },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
     );
 
     return res.status(200).json({
-      message: "Login successful",
+      message: "Вход выполнен успешно",
       token,
       user: {
         id: user._id,
@@ -98,7 +97,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: "Внутренняя ошибка сервера",
     });
   }
 };
@@ -113,7 +112,7 @@ const allUsers = async (req, res) => {
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: "Внутренняя ошибка сервера",
     });
   }
 };

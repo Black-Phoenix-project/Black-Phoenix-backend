@@ -1,17 +1,44 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
+const mongoose = require('mongoose');
+
 exports.createOrder = async (req, res) => {
   try {
     const { username, phoneNumber, description, product, userId, notes } = req.body;
 
     if (!username || !phoneNumber) {
-      return res.status(400).json({ success: false, message: 'Username and phoneNumber are required' });
+      return res.status(400).json({ success: false, message: 'Укажите имя и номер телефона' });
     }
 
     if (!product || !product.productName) {
-      return res.status(400).json({ success: false, message: 'Product information is required' });
+      return res.status(400).json({ success: false, message: 'Информация о товаре обязательна' });
     }
-    const price = Number(product.price) || 0;
-    const quantity = Number(product.quantity) || 1;
+
+    const quantity = Math.max(1, Math.min(1000, Math.floor(Number(product.quantity) || 1)));
+
+    let price;
+    let productName = product.productName;
+
+    if (product.productId) {
+      if (!mongoose.Types.ObjectId.isValid(product.productId)) {
+        return res.status(400).json({ success: false, message: 'Неверный productId' });
+      }
+
+      const dbProduct = await Product.findById(product.productId).lean();
+      if (!dbProduct) {
+        return res.status(400).json({ success: false, message: 'Товар не найден' });
+      }
+
+      price = Number(dbProduct.price);
+      productName = dbProduct.name;
+    } else {
+      price = Number(product.price);
+    }
+
+    if (!price || price <= 0) {
+      return res.status(400).json({ success: false, message: 'Неверная цена товара' });
+    }
+
     const totalAmount = price * quantity;
 
     const newOrder = new Order({
@@ -20,20 +47,20 @@ exports.createOrder = async (req, res) => {
       description,
       product: {
         productId: product.productId,
-        productName: product.productName,
-        price: price,          
-        quantity: quantity,   
+        productName,
+        price,
+        quantity,
         image: product.image,
       },
-      totalAmount,             
+      totalAmount,
       userId,
       notes,
     });
 
     const savedOrder = await newOrder.save();
-    res.status(201).json({ success: true, message: 'Order created successfully', data: savedOrder });
+    res.status(201).json({ success: true, message: 'Заказ успешно создан', data: savedOrder });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error creating order', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при создании заказа'});
   }
 };
 
@@ -61,7 +88,7 @@ exports.getAllOrders = async (req, res) => {
       data: orders,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching orders', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при получении заказов'});
   }
 };
 
@@ -71,12 +98,12 @@ exports.getOrderById = async (req, res) => {
       .populate('userId', 'username phoneNumber avatar');
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Заказ не найден' });
     }
 
     res.status(200).json({ success: true, data: order });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching order', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при получении заказа'});
   }
 };
 
@@ -87,7 +114,7 @@ exports.getOrdersByUsername = async (req, res) => {
 
     res.status(200).json({ success: true, count: orders.length, data: orders });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching orders', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при получении заказов'});
   }
 };
 
@@ -98,7 +125,7 @@ exports.getOrdersByUserId = async (req, res) => {
 
     res.status(200).json({ success: true, count: orders.length, data: orders });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching orders', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при получении заказов'});
   }
 };
 
@@ -108,7 +135,7 @@ exports.updateOrderStatus = async (req, res) => {
     const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status value' });
+      return res.status(400).json({ success: false, message: 'Неверное значение статуса' });
     }
 
     const order = await Order.findByIdAndUpdate(
@@ -117,11 +144,11 @@ exports.updateOrderStatus = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order) return res.status(404).json({ success: false, message: 'Заказ не найден' });
 
-    res.status(200).json({ success: true, message: 'Order status updated successfully', data: order });
+    res.status(200).json({ success: true, message: 'Статус заказа успешно обновлён', data: order });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error updating order', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при обновлении заказа'});
   }
 };
 
@@ -131,7 +158,7 @@ exports.updatePaymentStatus = async (req, res) => {
     const validPaymentStatuses = ['unpaid', 'paid', 'refunded'];
 
     if (!validPaymentStatuses.includes(paymentStatus)) {
-      return res.status(400).json({ success: false, message: 'Invalid payment status value' });
+      return res.status(400).json({ success: false, message: 'Неверное значение статуса оплаты' });
     }
 
     const order = await Order.findByIdAndUpdate(
@@ -140,11 +167,11 @@ exports.updatePaymentStatus = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order) return res.status(404).json({ success: false, message: 'Заказ не найден' });
 
-    res.status(200).json({ success: true, message: 'Payment status updated successfully', data: order });
+    res.status(200).json({ success: true, message: 'Статус оплаты успешно обновлён', data: order });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error updating payment status', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при обновлении статуса оплаты'});
   }
 };
 
@@ -161,22 +188,22 @@ exports.updateOrder = async (req, res) => {
       runValidators: true,
     });
 
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order) return res.status(404).json({ success: false, message: 'Заказ не найден' });
 
-    res.status(200).json({ success: true, message: 'Order updated successfully', data: order });
+    res.status(200).json({ success: true, message: 'Заказ успешно обновлён', data: order });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error updating order', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при обновлении заказа'});
   }
 };
 
 exports.deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order) return res.status(404).json({ success: false, message: 'Заказ не найден' });
 
-    res.status(200).json({ success: true, message: 'Order deleted successfully' });
+    res.status(200).json({ success: true, message: 'Заказ успешно удалён' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error deleting order', error: error.message });
+    res.status(500).json({ success: false, message: 'Error deleting order'});
   }
 };
 
@@ -221,6 +248,6 @@ exports.getOrderStats = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching statistics', error: error.message });
+    res.status(500).json({ success: false, message: 'Ошибка при получении статистики'});
   }
 };

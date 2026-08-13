@@ -1,4 +1,13 @@
 const Worker = require("../models/Workers");
+const errorResponse = require("../utils/errorResponse");
+
+const handleValidation = (res, err) => {
+  if (err.name === "ValidationError") {
+    return res.status(400).json({ success: false, message: "Ошибка валидации" });
+  }
+  return errorResponse(res, err);
+};
+
 exports.createWorker = async (req, res) => {
   try {
     const worker = await Worker.create(req.body);
@@ -8,7 +17,7 @@ exports.createWorker = async (req, res) => {
       data: worker,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleValidation(res, err);
   }
 };
 exports.getAllWorkers = async (req, res) => {
@@ -21,7 +30,7 @@ exports.getAllWorkers = async (req, res) => {
       data: workers,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    errorResponse(res, err);
   }
 };
 exports.getWorkerById = async (req, res) => {
@@ -29,14 +38,14 @@ exports.getWorkerById = async (req, res) => {
     const worker = await Worker.findById(req.params.id);
 
     if (!worker)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json({ message: "Работник не найден" });
 
     res.json({
       success: true,
       data: worker,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    errorResponse(res, err);
   }
 };
 exports.updateWorker = async (req, res) => {
@@ -48,14 +57,14 @@ exports.updateWorker = async (req, res) => {
     );
 
     if (!worker)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json({ message: "Работник не найден" });
 
     res.json({
       success: true,
       data: worker,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleValidation(res, err);
   }
 };
 exports.deleteWorker = async (req, res) => {
@@ -63,14 +72,14 @@ exports.deleteWorker = async (req, res) => {
     const worker = await Worker.findByIdAndDelete(req.params.id);
 
     if (!worker)
-      return res.status(404).json({ message: "Worker not found" });
+      return res.status(404).json({ message: "Работник не найден" });
 
     res.json({
       success: true,
-      message: "Deleted successfully",
+      message: "Успешно удалено",
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    errorResponse(res, err);
   }
 };
 exports.getWorkersByDepartment = async (req, res) => {
@@ -85,6 +94,6 @@ exports.getWorkersByDepartment = async (req, res) => {
       data: workers,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    errorResponse(res, err);
   }
 };

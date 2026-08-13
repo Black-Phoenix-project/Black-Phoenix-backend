@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const errorResponse = require('../utils/errorResponse');
 
 const normalizeImages = (value) => {
   if (Array.isArray(value)) {
@@ -20,14 +21,14 @@ exports.createProduct = async (req, res) => {
     if (!name || !description || price === undefined || price === null) {
       return res.status(400).json({
         success: false,
-        message: 'Name, description and price are required'
+        message: 'Укажите название, описание и цену'
       });
     }
 
     if (images.length < 1 || images.length > 3) {
       return res.status(400).json({
         success: false,
-        message: 'Image count must be between 1 and 3'
+        message: 'Количество изображений должно быть от 1 до 3'
       });
     }
 
@@ -44,7 +45,7 @@ exports.createProduct = async (req, res) => {
       data: product
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };
 
@@ -61,7 +62,7 @@ exports.getAllProducts = async (req, res) => {
       data: products
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };
 
@@ -70,14 +71,14 @@ exports.getProduct = async (req, res) => {
     const product = await Product .findById(req.params.id);
 
     if (!product)
-      return res.status(404).json({ success: false, message: 'Not found' });
+      return res.status(404).json({ success: false, message: 'Не найдено' });
 
     res.status(200).json({
       success: true,
       data: product
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };
 
@@ -92,7 +93,7 @@ exports.updateProduct = async (req, res) => {
       if (images.length < 1 || images.length > 3) {
         return res.status(400).json({
           success: false,
-          message: 'Image count must be between 1 and 3'
+          message: 'Количество изображений должно быть от 1 до 3'
         });
       }
       payload.image = images;
@@ -106,14 +107,14 @@ exports.updateProduct = async (req, res) => {
     );
 
     if (!product)
-      return res.status(404).json({ success: false, message: 'Not found' });
+      return res.status(404).json({ success: false, message: 'Не найдено' });
 
     res.status(200).json({
       success: true,
       data: product
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };
 exports.patchProduct = async (req, res) => {
@@ -127,7 +128,7 @@ exports.patchProduct = async (req, res) => {
       if (images.length < 1 || images.length > 3) {
         return res.status(400).json({
           success: false,
-          message: 'Image count must be between 1 and 3'
+          message: 'Количество изображений должно быть от 1 до 3'
         });
       }
       payload.image = images;
@@ -141,14 +142,14 @@ exports.patchProduct = async (req, res) => {
     );
 
     if (!product)
-      return res.status(404).json({ success: false, message: 'Not found' });
+      return res.status(404).json({ success: false, message: 'Не найдено' });
 
     res.status(200).json({
       success: true,
       data: product
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };
 exports.deleteProduct = async (req, res) => {
@@ -156,13 +157,13 @@ exports.deleteProduct = async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product)
-      return res.status(404).json({ success: false, message: 'Not found' });
+      return res.status(404).json({ success: false, message: 'Не найдено' });
 
     res.status(200).json({
       success: true,
-      message: 'Deleted successfully'
+      message: 'Успешно удалено'
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    errorResponse(res, error);
   }
 };

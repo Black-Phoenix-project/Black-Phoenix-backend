@@ -7,15 +7,16 @@ const {
     updateSwiper,
     deleteSwiper
 } = require('../controllers/swiperController');
+const protect = require('../middleware/authMiddleware');
 
 router.get('/', getAllSwipers);
 
 router.get('/:id', getSwiperById);
 
-router.post('/', createSwiper);
+router.post('/', protect, createSwiper);
 
-router.put('/:id', updateSwiper);
+router.put('/:id', protect, updateSwiper);
 
-router.delete('/:id', deleteSwiper);
+router.delete('/:id', protect, deleteSwiper);
 
 module.exports = router;

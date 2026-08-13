@@ -4,6 +4,15 @@ const SearchLog = require('../models/Search');
 const VALID_SORTS = ['default', 'price-asc', 'price-desc', 'newest'];
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
+const MAX_QUERY_LENGTH = 100;
+
+const escapeRegex = (value) =>
+  String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const toFiniteNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
 
 // ─── Filter builder ────────────────────────────────────────────────────────────
 
@@ -14,10 +23,11 @@ function buildFilter({ query, inStock, minPrice, maxPrice, useTextSearch }) {
     if (useTextSearch) {
       conditions.push({ $text: { $search: query } });
     } else {
+      const escaped = escapeRegex(query);
       conditions.push({
         $or: [
-          { name: { $regex: query, $options: 'i' } },
-          { description: { $regex: query, $options: 'i' } },
+          { name: { $regex: escaped, $options: 'i' } },
+          { description: { $regex: escaped, $options: 'i' } },
         ],
       });
     }
@@ -28,8 +38,10 @@ function buildFilter({ query, inStock, minPrice, maxPrice, useTextSearch }) {
   }
 
   const priceFilter = {};
-  if (minPrice) priceFilter.$gte = Number(minPrice);
-  if (maxPrice) priceFilter.$lte = Number(maxPrice);
+  const gte = toFiniteNumber(minPrice);
+  const lte = toFiniteNumber(maxPrice);
+  if (gte !== null) priceFilter.$gte = gte;
+  if (lte !== null) priceFilter.$lte = lte;
   if (Object.keys(priceFilter).length > 0) {
     conditions.push({ price: priceFilter });
   }
@@ -94,7 +106,7 @@ exports.search = async (req, res) => {
       limit = String(DEFAULT_LIMIT),
     } = req.query;
 
-    const query = q.trim();
+    const query = q.trim().slice(0, MAX_QUERY_LENGTH);
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.min(MAX_LIMIT, Math.max(1, parseInt(limit) || DEFAULT_LIMIT));
     const skip = (pageNum - 1) * limitNum;
@@ -141,6 +153,7 @@ exports.search = async (req, res) => {
       limit: limitNum,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('Search error:', error);
+    return res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
   }
 };

@@ -1,6 +1,25 @@
 const Worker = require("../models/Workers");
 const errorResponse = require("../utils/errorResponse");
 
+const WORKER_FIELDS = [
+  "firstname",
+  "lastname",
+  "position",
+  "department",
+  "salary",
+  "phone",
+  "avatar",
+  "status",
+];
+
+const pickWorkerFields = (body) => {
+  const picked = {};
+  for (const key of WORKER_FIELDS) {
+    if (body[key] !== undefined) picked[key] = body[key];
+  }
+  return picked;
+};
+
 const handleValidation = (res, err) => {
   if (err.name === "ValidationError") {
     return res.status(400).json({ success: false, message: "Ошибка валидации" });
@@ -10,7 +29,7 @@ const handleValidation = (res, err) => {
 
 exports.createWorker = async (req, res) => {
   try {
-    const worker = await Worker.create(req.body);
+    const worker = await Worker.create(pickWorkerFields(req.body));
 
     res.status(201).json({
       success: true,
@@ -52,7 +71,7 @@ exports.updateWorker = async (req, res) => {
   try {
     const worker = await Worker.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      pickWorkerFields(req.body),
       { new: true, runValidators: true }
     );
 

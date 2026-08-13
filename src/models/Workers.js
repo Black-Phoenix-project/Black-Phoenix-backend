@@ -26,6 +26,11 @@ const workerSchema = new mongoose.Schema(
     },
     phone: String,
     avatar: String,
+    status: {
+      type: String,
+      enum: ["Faol", "Dam olishda"],
+      default: "Faol",
+    },
   },
   { timestamps: true }
 );

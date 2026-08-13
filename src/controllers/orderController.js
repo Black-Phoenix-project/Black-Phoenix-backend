@@ -83,6 +83,7 @@ exports.getAllOrders = async (req, res) => {
     res.status(200).json({
       success: true,
       count: orders.length,
+      total: count,
       totalPages: Math.ceil(count / limit),
       currentPage: Number(page),
       data: orders,

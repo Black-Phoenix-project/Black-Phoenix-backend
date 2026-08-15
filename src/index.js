@@ -18,7 +18,7 @@ const app = express();
 
 app.use(helmet({ contentSecurityPolicy: false }));
 
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000,https://blackphoenix.uz,https://www.blackphoenix.uz')
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000,https://blackphoenix.uz,https://www.blackphoenix.uz,https://admin.blackphoenix.uz,https://blackphoenix-clientbek.vercel.app')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
@@ -26,9 +26,10 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http:
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Allow Vercel preview deployments (client + admin) for testing
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
       return callback(null, false);
     },
     credentials: true,

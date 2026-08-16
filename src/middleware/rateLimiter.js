@@ -33,9 +33,16 @@ const orderLimiter = rateLimit({
   ...standard,
 });
 
+const likeLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 120,
+  ...standard,
+});
+
 module.exports = {
   authLimiter,
   searchLimiter,
   uploadLimiter,
   orderLimiter,
+  likeLimiter,
 };

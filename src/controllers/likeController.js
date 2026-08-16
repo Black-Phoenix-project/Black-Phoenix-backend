@@ -5,7 +5,8 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 exports.addLike = async (req, res) => {
   try {
-    const { userId, productId } = req.body;
+    const userId = req.clientId;
+    const { productId } = req.body;
 
     if (!userId || !productId) {
       return res.status(400).json({
@@ -53,7 +54,7 @@ exports.addLike = async (req, res) => {
 
 exports.removeLike = async (req, res) => {
   try {
-    const userId = req.body.userId || req.query.userId;
+    const userId = req.clientId;
     const productId = req.body.productId || req.query.productId;
 
     if (!userId || !productId) {
@@ -87,7 +88,8 @@ exports.removeLike = async (req, res) => {
 
 exports.toggleLike = async (req, res) => {
   try {
-    const { userId, productId } = req.body;
+    const userId = req.clientId;
+    const { productId } = req.body;
 
     if (!userId || !productId) {
       return res.status(400).json({
@@ -133,7 +135,7 @@ exports.toggleLike = async (req, res) => {
 
 exports.getUserLikes = async (req, res) => {
   try {
-    const userId = req.params.userId || req.query.userId;
+    const userId = req.clientId;
 
     if (!userId) {
       return res.status(400).json({
@@ -169,7 +171,8 @@ exports.getUserLikes = async (req, res) => {
 
 exports.checkLike = async (req, res) => {
   try {
-    const { userId, productId } = req.query;
+    const userId = req.clientId;
+    const { productId } = req.query;
 
     if (!userId || !productId) {
       return res.status(400).json({

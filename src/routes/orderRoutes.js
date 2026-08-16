@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
 const protect = require('../middleware/authMiddleware');
+const protectClient = require('../middleware/clientAuthMiddleware');
 const { orderLimiter } = require('../middleware/rateLimiter');
 const {
   createOrderValidator,
@@ -15,7 +16,7 @@ router.get('/', protect, orderController.getAllOrders);
 
 router.get('/stats', protect, orderController.getOrderStats);
 
-router.get('/username/:username', orderController.getOrdersByUsername);
+router.get('/username/:username', protectClient, orderController.getOrdersByUsername);
 
 router.get('/:id', protect, orderController.getOrderById);
 

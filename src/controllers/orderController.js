@@ -110,7 +110,10 @@ exports.getOrderById = async (req, res) => {
 
 exports.getOrdersByUsername = async (req, res) => {
   try {
-    const orders = await Order.find({ username: req.params.username })
+    const orders = await Order.find({
+      username: req.params.username,
+      userId: req.clientId,
+    })
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: orders.length, data: orders });

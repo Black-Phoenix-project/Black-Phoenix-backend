@@ -12,7 +12,7 @@ exports.getAllCategories = async (req, res) => {
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name, slug, order, active } = req.body;
+    const { name, slug, order, parent, active } = req.body;
     if (!name || !slug) {
       return res.status(400).json({ success: false, message: 'Укажите название и slug' });
     }
@@ -20,7 +20,9 @@ exports.createCategory = async (req, res) => {
     if (exists) {
       return res.status(409).json({ success: false, message: 'Категория с таким slug уже существует' });
     }
-    const category = await Category.create({ name, slug, order, active });
+    const payload = { name, slug, order, active };
+    if (parent) payload.parent = parent;
+    const category = await Category.create(payload);
     res.status(201).json({ success: true, data: category });
   } catch (error) {
     errorResponse(res, error);
@@ -29,9 +31,12 @@ exports.createCategory = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
   try {
+    const body = { ...req.body };
+    if (!body.parent) delete body.parent;
+    if (body.order === "" || body.order == null) delete body.order;
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: body },
       { new: true, runValidators: true }
     );
     if (!category) return res.status(404).json({ success: false, message: 'Не найдено' });

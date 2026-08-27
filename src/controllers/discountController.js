@@ -14,7 +14,11 @@ exports.getAllDiscounts = async (req, res) => {
 
 exports.createDiscount = async (req, res) => {
   try {
-    const discount = await Discount.create(req.body);
+    const body = { ...req.body };
+    if (!body.product) delete body.product;
+    if (!body.startsAt) delete body.startsAt;
+    if (!body.endsAt) delete body.endsAt;
+    const discount = await Discount.create(body);
     res.status(201).json({ success: true, data: discount });
   } catch (error) {
     errorResponse(res, error);
@@ -23,9 +27,13 @@ exports.createDiscount = async (req, res) => {
 
 exports.updateDiscount = async (req, res) => {
   try {
+    const body = { ...req.body };
+    if (!body.product) delete body.product;
+    if (!body.startsAt) delete body.startsAt;
+    if (!body.endsAt) delete body.endsAt;
     const discount = await Discount.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: body },
       { new: true, runValidators: true }
     );
     if (!discount) return res.status(404).json({ success: false, message: 'Не найдено' });

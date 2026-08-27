@@ -15,7 +15,7 @@ exports.getAllDiscounts = async (req, res) => {
 exports.createDiscount = async (req, res) => {
   try {
     const body = { ...req.body };
-    if (!body.product) delete body.product;
+    if (!body.productId) delete body.productId;
     if (!body.startsAt) delete body.startsAt;
     if (!body.endsAt) delete body.endsAt;
     const discount = await Discount.create(body);
@@ -28,7 +28,7 @@ exports.createDiscount = async (req, res) => {
 exports.updateDiscount = async (req, res) => {
   try {
     const body = { ...req.body };
-    if (!body.product) delete body.product;
+    if (!body.productId) delete body.productId;
     if (!body.startsAt) delete body.startsAt;
     if (!body.endsAt) delete body.endsAt;
     const discount = await Discount.findByIdAndUpdate(

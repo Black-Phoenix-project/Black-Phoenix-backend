@@ -5,9 +5,11 @@ const errorResponse = (res, error, context = '') => {
     console.error('Error:', error);
   }
 
-  return res.status(500).json({
+  const message = error && error.message ? error.message : 'Внутренняя ошибка сервера';
+  const status = error && error.statusCode ? error.statusCode : 500;
+  return res.status(status).json({
     success: false,
-    message: 'Внутренняя ошибка сервера',
+    message,
   });
 };
 

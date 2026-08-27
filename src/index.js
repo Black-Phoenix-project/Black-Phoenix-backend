@@ -13,6 +13,10 @@ const orderRoutes = require('./routes/orderRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const categoryRouter = require('./routes/categoryRoutes');
+const customOrderRouter = require('./routes/customOrderRoutes');
+const discountRouter = require('./routes/discountRoutes');
+const settingsRouter = require('./routes/settingsRoutes');
 
 const app = express();
 
@@ -28,8 +32,7 @@ app.use(
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      // Allow Vercel preview deployments (client + admin) for testing
-      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      if (process.env.CORS_ALLOW_VERCEL_PREVIEW === 'true' && origin.endsWith('.vercel.app')) return callback(null, true);
       return callback(null, false);
     },
     credentials: true,
@@ -52,6 +55,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/category', categoryRouter);
+app.use('/api/custom-orders', customOrderRouter);
+app.use('/api/discount', discountRouter);
+app.use('/api/settings', settingsRouter);
 
 app.use((err, req, res, next) => {
   if (err && err.name === 'MulterError') {

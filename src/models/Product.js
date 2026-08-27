@@ -34,7 +34,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: null,
-      enum: [null, 'spetsodezhda', 'spetsobov', 'sredstva-zashchity', 'trikotazh', 'khoztovary', 'uniforma', 'novinki']
     },
 
   },

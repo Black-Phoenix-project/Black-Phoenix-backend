@@ -3,7 +3,7 @@ const SearchLog = require('../models/Search');
 
 const VALID_SORTS = ['default', 'price-asc', 'price-desc', 'newest'];
 const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
+// MAX_LIMIT olib tashlandi — catalog to'liq ko'rinadi
 const MAX_QUERY_LENGTH = 100;
 
 const escapeRegex = (value) =>
@@ -108,7 +108,7 @@ exports.search = async (req, res) => {
 
     const query = q.trim().slice(0, MAX_QUERY_LENGTH);
     const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(MAX_LIMIT, Math.max(1, parseInt(limit) || DEFAULT_LIMIT));
+    const limitNum = Math.max(1, parseInt(limit) || DEFAULT_LIMIT);
     const skip = (pageNum - 1) * limitNum;
     const validSort = VALID_SORTS.includes(sort) ? sort : 'default';
 

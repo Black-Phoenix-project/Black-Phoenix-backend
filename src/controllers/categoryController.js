@@ -53,7 +53,7 @@ exports.updateCategory = async (req, res) => {
     );
     if (!category) return res.status(404).json({ success: false, message: 'Не найдено' });
 
-    if (productIds) {
+if (productIds && productIds.length > 0) {
       await Product.updateMany({ _id: { $in: productIds } }, { category: newSlug });
       // bu kategoriyadan chiqarib yuborilgan mahsulotlarni tozalash
       await Product.updateMany(

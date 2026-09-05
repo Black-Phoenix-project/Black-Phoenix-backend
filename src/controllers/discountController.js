@@ -4,7 +4,13 @@ const errorResponse = require('../utils/errorResponse');
 exports.getAllDiscounts = async (req, res) => {
   try {
     const filter = {};
-    if (req.query.active === 'true') filter.active = true;
+    if (req.query.active === 'true') {
+      filter.active = true;
+      filter.$or = [
+        { endsAt: null },
+        { endsAt: { $gte: new Date() } },
+      ];
+    }
     const discounts = await Discount.find(filter).sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: discounts.length, data: discounts });
   } catch (error) {
@@ -28,7 +34,16 @@ exports.createDiscount = async (req, res) => {
 exports.updateDiscount = async (req, res) => {
   try {
     const body = { ...req.body };
-    if (!body.productId) delete body.productId;
+    // Remove productId only if it's explicitly empty AND scope is global
+    // If scope is product, keep productId (even if empty string) so validator can check it
+    if (body.scope === 'global' && (!body.productId || body.productId === '')) {
+      // Add $unset to remove productId from the document
+      body._unset = { productId: '' };
+      // Don't include productId in $set
+      delete body.productId;
+    } else if (!body.productId) {
+      delete body.productId;
+    }
     if (!body.startsAt) delete body.startsAt;
     if (!body.endsAt) delete body.endsAt;
     const discount = await Discount.findByIdAndUpdate(

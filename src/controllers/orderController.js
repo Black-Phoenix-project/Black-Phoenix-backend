@@ -29,7 +29,11 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Товар не найден' });
       }
 
-      price = Number(dbProduct.price);
+      // Use client price if it's provided and is less than DB price (indicates discount was applied)
+      // Otherwise use DB price to maintain price integrity
+      const clientPrice = Number(product.price);
+      const dbPrice = Number(dbProduct.price);
+      price = clientPrice > 0 && clientPrice < dbPrice ? clientPrice : dbPrice;
       productName = dbProduct.name;
     } else {
       price = Number(product.price);
@@ -72,7 +76,7 @@ exports.getAllOrders = async (req, res) => {
     if (paymentStatus) query.paymentStatus = paymentStatus;
 
     const orders = await Order.find(query)
-      .populate('userId', 'username phoneNumber avatar')
+.populate('userId', 'fullName phoneNumber avatar')
     
       .sort({ createdAt: -1 })
       .limit(Number(limit))
@@ -96,7 +100,7 @@ exports.getAllOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate('userId', 'username phoneNumber avatar');
+      .populate('userId', 'fullName phoneNumber avatar');
 
     if (!order) {
       return res.status(404).json({ success: false, message: 'Заказ не найден' });

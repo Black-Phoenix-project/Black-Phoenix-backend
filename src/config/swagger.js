@@ -4,7 +4,7 @@ const swaggerUi = require("swagger-ui-express");
 const options = {
   definition: {
     openapi: "3.0.0",
-    warning: {
+    info: {
       title: "Spej Odejda API",
       version: "1.0.0",
       description: "Authentication and Users API documentation",

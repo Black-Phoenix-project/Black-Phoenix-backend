@@ -47,7 +47,7 @@ const orderSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Client',
     required: false,
   },
   notes: {
